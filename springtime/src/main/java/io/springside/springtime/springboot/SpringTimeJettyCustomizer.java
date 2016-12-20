@@ -39,7 +39,7 @@ public class SpringTimeJettyCustomizer implements EmbeddedServletContainerCustom
 
 		JettyEmbeddedServletContainerFactory jettyFactory = (JettyEmbeddedServletContainerFactory) container;
 
-		customizeThreadPool((QueuedThreadPool) jettyFactory.getThreadPool());
+		customizeThreadPool(jettyFactory);
 
 		jettyFactory.addServerCustomizers(new JettyServerCustomizer() {
 
@@ -91,8 +91,14 @@ public class SpringTimeJettyCustomizer implements EmbeddedServletContainerCustom
 		});
 	}
 
-	private void customizeThreadPool(QueuedThreadPool threadPool) {
+	private void customizeThreadPool(JettyEmbeddedServletContainerFactory jettyFactory) {
+		QueuedThreadPool threadPool = (QueuedThreadPool) jettyFactory.getThreadPool();
+		if (threadPool == null) {
+			threadPool = new QueuedThreadPool();
+			jettyFactory.setThreadPool(threadPool);
+		}
 		threadPool.setMaxThreads(maxThreads);
+		threadPool.setIdleTimeout(10000);
 	}
 
 	public void setMaxThreads(Integer maxThreads) {
