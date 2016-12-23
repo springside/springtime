@@ -1,13 +1,12 @@
 package io.springside.springtime.examples.helloservice.service;
 
-import org.springframework.stereotype.Controller;
-
 import io.springside.springtime.examples.helloservice.idl.GreetingService;
+import io.springside.springtime.springboot.SpringTimeService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @Api("greeting")
-@Controller("greeting")
+@SpringTimeService("greeting")
 public class GreetingServiceImpl implements GreetingService {
 
 	@Override

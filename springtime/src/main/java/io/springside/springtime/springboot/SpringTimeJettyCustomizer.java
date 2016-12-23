@@ -8,6 +8,7 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.util.ArrayUtil;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -23,7 +24,7 @@ import org.springframework.stereotype.Component;
 import io.springside.springtime.jetty.SpringTimeHandler;
 
 /**
- * 定制化Jetty，加入Http/Http2支持，指定专门的
+ * 定制化Jetty，加入Http/Http2支持，指定专门的Handler
  */
 @Component
 @ConfigurationProperties(prefix = "server.jetty", ignoreUnknownFields = true)
@@ -31,7 +32,9 @@ public class SpringTimeJettyCustomizer implements EmbeddedServletContainerCustom
 
 	private ApplicationContext applicationContext;
 
-	private Integer maxThreads = Runtime.getRuntime().availableProcessors() * 20;
+	private Integer minThreads = Math.max(8, Runtime.getRuntime().availableProcessors());
+
+	private Integer maxThreads = Math.max(200, Runtime.getRuntime().availableProcessors() * 20);
 
 	@Override
 	public void customize(ConfigurableEmbeddedServletContainer container) {
@@ -77,32 +80,29 @@ public class SpringTimeJettyCustomizer implements EmbeddedServletContainerCustom
 			}
 
 			private void customizeSpringTimeHanlder(Server server) {
-				// add SpringTimeHandler at the beginning
+				// add SpringTimeHandler as first handler
 				Handler[] oldHandlers = server.getHandlers();
 				SpringTimeHandler springTimeHandler = new SpringTimeHandler(applicationContext);
+				
 				HandlerList handlerList = new HandlerList();
-				handlerList.addHandler(springTimeHandler);
-				for (Handler handler : oldHandlers) {
-					handlerList.addHandler(handler);
-				}
+				handlerList.setHandlers(ArrayUtil.prependToArray(springTimeHandler, oldHandlers, Handler.class));
+				
 				server.setHandler(handlerList);
 			}
-
 		});
 	}
 
 	private void customizeThreadPool(JettyEmbeddedServletContainerFactory jettyFactory) {
-		QueuedThreadPool threadPool = (QueuedThreadPool) jettyFactory.getThreadPool();
-		if (threadPool == null) {
-			threadPool = new QueuedThreadPool();
-			jettyFactory.setThreadPool(threadPool);
-		}
-		threadPool.setMaxThreads(maxThreads);
-		threadPool.setIdleTimeout(10000);
+		QueuedThreadPool threadPool = new QueuedThreadPool(maxThreads, minThreads, 10000);
+		jettyFactory.setThreadPool(threadPool);
 	}
 
 	public void setMaxThreads(Integer maxThreads) {
 		this.maxThreads = maxThreads;
+	}
+
+	public void setMinThreads(Integer minThreads) {
+		this.minThreads = minThreads;
 	}
 
 	@Override

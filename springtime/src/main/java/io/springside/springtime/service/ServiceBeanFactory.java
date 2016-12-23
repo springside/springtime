@@ -11,7 +11,7 @@ import net.sf.cglib.reflect.FastMethod;
 /**
  * 保存通过cglib快速执行服务方法的MethodInvoker
  */
-public class ServiceBeanRegistry {
+public class ServiceBeanFactory {
 	//key: path
 	public Map<String, MethodInvoker> methodInvokerMap = new HashMap<String, MethodInvoker>();
 

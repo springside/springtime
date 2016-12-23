@@ -1,7 +1,12 @@
 package io.springside.springtime.examples.helloservice.idl;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api("Greeting Service")
 public interface GreetingService {
 
+	
 	public static class HelloRequest {
 		public String name;
 	}
@@ -18,8 +23,10 @@ public interface GreetingService {
 		public String weather;
 	}
 
+	@ApiOperation(value = "hello")
 	public HelloResponse hello(HelloRequest helloRequest);
 
+	@ApiOperation(value = "weather")
 	public WeatherResponse weather(WeatherRequest weatherRequest);
 
 }

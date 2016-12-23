@@ -14,9 +14,9 @@ import org.springframework.context.ApplicationContext;
 
 import io.springside.springtime.serializer.JsonSerializer;
 import io.springside.springtime.serializer.Serializer;
+import io.springside.springtime.service.ServiceBeanFactory;
 import io.springside.springtime.service.ServiceDispatcher;
-import io.springside.springtime.service.ServiceBeanRegistry;
-import io.swagger.annotations.Api;
+import io.springside.springtime.springboot.SpringTimeService;
 
 /**
  * Jetty的Handler.
@@ -32,13 +32,14 @@ public class SpringTimeHandler extends AbstractHandler {
 	private Serializer serializer = new JsonSerializer();
 
 	public SpringTimeHandler(ApplicationContext applicationContext) {
-		ServiceBeanRegistry serviceRegistry = new ServiceBeanRegistry();
-		Map<String, Object> beans = applicationContext.getBeansWithAnnotation(Api.class);
+		ServiceBeanFactory serviceBeanFactory = new ServiceBeanFactory();
+		//TODO: 检查名称重复的方法
+		Map<String, Object> beans = applicationContext.getBeansWithAnnotation(SpringTimeService.class);
 		for (Entry<String, Object> entry : beans.entrySet()) {
-			serviceRegistry.add(RPC_PREFIX, entry.getKey(), entry.getValue());
+			serviceBeanFactory.add(RPC_PREFIX, entry.getKey(), entry.getValue());
 		}
 
-		dispatcher = new ServiceDispatcher(serviceRegistry);
+		dispatcher = new ServiceDispatcher(serviceBeanFactory);
 	}
 
 	@Override

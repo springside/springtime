@@ -5,13 +5,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import io.springside.springtime.serializer.Serializer;
-import io.springside.springtime.service.ServiceBeanRegistry.MethodInvoker;
+import io.springside.springtime.service.ServiceBeanFactory.MethodInvoker;
 
 public class ServiceDispatcher {
 	
-	private ServiceBeanRegistry registry;
+	private ServiceBeanFactory registry;
 
-	public ServiceDispatcher(ServiceBeanRegistry registry) {
+	public ServiceDispatcher(ServiceBeanFactory registry) {
 		this.registry = registry;
 	}
 
